@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Transport Cimento</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1b2a;--bg2:#112236;--bg3:#1a3148;
+  --border:#1e3a50;--border2:#2a4f6a;
+  --text:#dff0ff;--text2:#7aa5c4;--text3:#3d6880;
+  --orange:#ff6b00;--orange2:#e55e00;
+  --green:#00c97a;--blue:#2196f3;--red:#ff4444;--yellow:#ffc107;
+  --r:10px;--rsm:6px
+}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh}
+header{background:var(--bg2);border-bottom:2px solid var(--orange);padding:0 16px;position:sticky;top:0;z-index:100}
+.header-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--orange);letter-spacing:1px;text-transform:uppercase}
+.logo span{color:var(--text2);font-weight:600}
+.tabs{display:flex;gap:4px}
+.tab{padding:8px 18px;border:none;background:transparent;color:var(--text2);font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:var(--rsm);text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
+.tab.active{background:var(--orange);color:#fff}
+.tab:not(.active):hover{background:var(--bg3);color:var(--text)}
+.page{display:none;max-width:1000px;margin:0 auto;padding:24px 16px}
+.page.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+.stat .val{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--orange)}
+.stat .lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:20px}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:18px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rsm);color:var(--text);padding:10px 12px;font-size:14px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s;width:100%}
+.fg input:focus,.fg select:focus{border-color:var(--orange)}
+.fg select option{background:var(--bg3)}
+.fg small{font-size:11px;color:var(--text2);margin-top:2px}
+.fg small.ok{color:var(--green)}
+.btn{padding:11px 22px;border:none;border-radius:var(--rsm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;font-family:'Barlow',sans-serif}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:var(--orange2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-sm{padding:5px 12px;font-size:11px}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.alert{padding:12px 16px;border-radius:var(--rsm);font-size:13px;margin-bottom:16px}
+.alert-ok{background:rgba(0,201,122,.1);border:1px solid rgba(0,201,122,.3);color:var(--green)}
+.alert-err{background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);color:var(--red)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;border-bottom:1px solid var(--border)}
+td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.placa{font-family:monospace;font-weight:700;font-size:15px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;letter-spacing:2px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.b-green{background:rgba(0,201,122,.15);color:var(--green)}
+.b-blue{background:rgba(33,150,243,.15);color:var(--blue)}
+.b-orange{background:rgba(255,107,0,.15);color:var(--orange)}
+.empty{text-align:center;padding:40px;color:var(--text3);font-size:14px}
+.empty .ic{font-size:36px;display:block;margin-bottom:10px}
+#loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px}
+#loading-overlay p{color:var(--text2);font-size:14px}
+.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .logo{font-size:17px}
+  .tab{padding:6px 10px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p>Conectando ao Firebase...</p>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">🚛 Transport <span>Cimento</span></div>
+    <div class="tabs">
+      <button class="tab active" id="tab-fornecedor" onclick="showPage('fornecedor',this)">🚛 Fornecedor</button>
+      <button class="tab" id="tab-despacho" onclick="showPage('despacho',this)">📦 Despacho</button>
+    </div>
+  </div>
+</header>
+
+<!-- FORNECEDOR -->
+<div class="page active" id="page-fornecedor">
+  <div class="stats">
+    <div class="stat"><div class="val" id="f-total">0</div><div class="lbl">Total hoje</div></div>
+    <div class="stat"><div class="val" id="f-disp" style="color:var(--green)">0</div><div class="lbl">Disponíveis</div></div>
+    <div class="stat"><div class="val" id="f-aloc" style="color:var(--blue)">0</div><div class="lbl">Alocados</div></div>
+    <div class="stat"><div class="val" id="f-cap" style="color:var(--yellow)">0t</div><div class="lbl">Capacidade</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">➕ Cadastrar Veículo</div>
+    <div id="f-msg"></div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>Placa *</label>
+        <input id="f-placa" type="text" placeholder="ABC1234" maxlength="7" style="text-transform:uppercase;letter-spacing:2px;font-weight:700;font-family:monospace"/>
+      </div>
+      <div class="fg">
+        <label>Modal / Tipo *</label>
+        <select id="f-modal">
+          <option value="Toco (2 eixos)|8">Toco (2 eixos) — até 8t</option>
+          <option value="Truck (3 eixos)|14" selected>Truck (3 eixos) — até 14t</option>
+          <option value="Bitruck (4 eixos)|20">Bitruck (4 eixos) — até 20t</option>
+          <option value="Carreta Simples|27">Carreta Simples — até 27t</option>
+          <option value="Carreta LS|29">Carreta LS — até 29t</option>
+          <option value="Vanderleia|33">Vanderleia — até 33t</option>
+          <option value="Bitrem (7 eixos)|45">Bitrem (7 eixos) — até 45t</option>
+          <option value="Treminhão (7 eixos)|57">Treminhão (7 eixos) — até 57t</option>
+          <option value="Rodotrem (9 eixos)|74">Rodotrem (9 eixos) — até 74t</option>
+          <option value="Munck|10">Munck — até 10t</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Nome do Motorista</label>
+        <input id="f-motorista" type="text" placeholder="Nome do motorista"/>
+      </div>
+    </div>
+    <div style="margin-top:18px">
+      <button class="btn btn-primary" onclick="cadastrarVeiculo()">✅ Confirmar Disponibilidade</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚛 Frota Disponível Hoje</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Placa</th><th>Modal</th><th>Motorista</th><th>Cap.</th><th>Status</th><th></th></tr></thead>
+        <tbody id="f-tbody"><tr><td colspan="6"><div class="empty"><span class="ic">⏳</span>Aguardando...</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DESPACHO -->
+<div class="page" id="page-despacho">
+  <div class="stats">
+    <div class="stat"><div class="val" id="d-disp" style="color:var(--green)">0</div><div class="lbl">Disponíveis</div></div>
+    <div class="stat"><div class="val" id="d-total" style="color:var(--blue)">0</div><div class="lbl">Despachados</div></div>
+    <div class="stat"><div class="val" id="d-ton" style="color:var(--orange)">0t</div><div class="lbl">Total ton.</div></div>
+    <div class="stat"><div class="val" id="d-sacos" style="color:var(--yellow)">0</div><div class="lbl">Sacos 50kg</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚀 Novo Despacho</div>
+    <div id="d-aviso" class="alert alert-err" style="display:none">⚠️ Nenhum veículo disponível. Aguarde o fornecedor.</div>
+    <div id="d-msg"></div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>Veículo Disponível *</label>
+        <select id="d-veiculo" onchange="onVeiculoChange()">
+          <option value="">Selecione...</option>
+        </select>
+        <small id="d-vcap" class="ok"></small>
+      </div>
+      <div class="fg">
+        <label>Destino / Obra *</label>
+        <select id="d-destino">
+          <option>Obra Centro</option><option>Obra Norte</option><option>Obra Sul</option>
+          <option>Obra Leste</option><option>Obra Oeste</option>
+          <option>Depósito Principal</option><option>Depósito Filial</option>
+          <option>Cliente A</option><option>Cliente B</option><option>Cliente C</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Observação de Destino</label>
+        <input id="d-obs" type="text" placeholder="Endereço, referência..."/>
+      </div>
+      <div class="fg">
+        <label>Número do Pedido *</label>
+        <input id="d-pedido" type="text" placeholder="Ex: PED-001" style="text-transform:uppercase"/>
+      </div>
+      <div class="fg">
+        <label>Toneladas *</label>
+        <input id="d-ton-input" type="number" placeholder="Ex: 14.5" step="0.5" min="0.5" oninput="calcSacos()"/>
+        <small id="d-ton-info"></small>
+      </div>
+      <div class="fg">
+        <label>Sacos de 50kg (auto)</label>
+        <input id="d-sacos-input" type="number" placeholder="Automático" min="1" oninput="calcTon()"/>
+      </div>
+    </div>
+    <div style="margin-top:18px">
+      <button class="btn btn-primary" id="d-btn" onclick="despachar()">🚀 Confirmar Despacho</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Pedidos Despachados Hoje</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Pedido</th><th>Placa</th><th>Modal</th><th>Destino</th><th>Ton.</th><th>Sacos</th><th>Motorista</th><th></th></tr></thead>
+        <tbody id="d-tbody"><tr><td colspan="8"><div class="empty"><span class="ic">⏳</span>Aguardando...</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, serverTimestamp, query, orderBy }
+  from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCzd3mlF0qlPvw1AwVv3PAt9RXnZQ06sdY",
+  authDomain:"cimento-d887e.firebaseapp.com",
+  projectId:"cimento-d887e",
+  storageBucket:"cimento-d887e.firebasestorage.app",
+  messagingSenderId:"1098178518193",
+  appId:"1:1098178518193:web:8712992a0eda7730ce9690"
+});
+const db = getFirestore(app);
+const hoje = () => new Date().toISOString().split("T")[0];
+let veiculosDisp = [], pedidosHoje = [];
+
+// Veículos
+onSnapshot(query(collection(db,"veiculos_disponiveis"),orderBy("criadoEm","desc")), snap => {
+  const todos = snap.docs.map(d=>({id:d.id,...d.data()})).filter(v=>v.data===hoje());
+  const disp  = todos.filter(v=>v.status==="disponivel");
+  const aloc  = todos.filter(v=>v.status==="alocado");
+  veiculosDisp = disp;
+  document.getElementById("f-total").textContent = todos.length;
+  document.getElementById("f-disp").textContent  = disp.length;
+  document.getElementById("f-aloc").textContent  = aloc.length;
+  document.getElementById("f-cap").textContent   = todos.reduce((s,v)=>s+(v.cap||0),0)+"t";
+  const tb = document.getElementById("f-tbody");
+  tb.innerHTML = todos.length ? todos.map(v=>`
+    <tr>
+      <td><span class="placa">${v.placa}</span></td>
+      <td>${v.modal}</td><td>${v.motorista||'—'}</td><td>${v.cap||0}t</td>
+      <td><span class="badge ${v.status==='disponivel'?'b-green':'b-blue'}">${v.status==='disponivel'?'Disponível':'Alocado'}</span></td>
+      <td>${v.status==='disponivel'?`<button class="btn btn-danger btn-sm" onclick="removerVeiculo('${v.id}','${v.placa}')">Remover</button>`:''}</td>
+    </tr>`).join("") :
+    `<tr><td colspan="6"><div class="empty"><span class="ic">🚛</span>Nenhum veículo hoje.</div></td></tr>`;
+  const sel = document.getElementById("d-veiculo");
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">Selecione...</option>`+disp.map(v=>`<option value="${v.id}|${v.cap}">${v.placa} — ${v.modal} (${v.cap}t) | ${v.motorista||'sem motorista'}</option>`).join("");
+  if(cur) sel.value=cur;
+  document.getElementById("d-aviso").style.display = disp.length?'none':'block';
+  document.getElementById("d-disp").textContent = disp.length;
+  onVeiculoChange();
+  document.getElementById("loading-overlay").style.display="none";
+});
+
+// Pedidos
+onSnapshot(query(collection(db,"pedidos_despacho"),orderBy("criadoEm","desc")), snap => {
+  pedidosHoje = snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.data===hoje());
+  const totTon   = pedidosHoje.reduce((s,p)=>s+(p.toneladas||0),0);
+  const totSacos = pedidosHoje.reduce((s,p)=>s+(p.sacos||0),0);
+  document.getElementById("d-total").textContent = pedidosHoje.length;
+  document.getElementById("d-ton").textContent   = totTon.toFixed(1)+"t";
+  document.getElementById("d-sacos").textContent = totSacos.toLocaleString("pt-BR");
+  const tb = document.getElementById("d-tbody");
+  tb.innerHTML = pedidosHoje.length ? pedidosHoje.map(p=>`
+    <tr>
+      <td><strong style="color:var(--orange)">${p.pedido}</strong></td>
+      <td><span class="placa">${p.placa}</span></td>
+      <td><span class="badge b-orange">${p.modal.split(" ")[0]}</span></td>
+      <td>${p.destino}${p.obs?`<br><small style="color:var(--text2)">${p.obs}</small>`:''}</td>
+      <td><strong>${p.toneladas}t</strong></td>
+      <td>${(p.sacos||0).toLocaleString("pt-BR")}</td>
+      <td>${p.motorista||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="cancelarPedido('${p.id}','${p.veiculoId}','${p.pedido}')">Cancelar</button></td>
+    </tr>`).join("") :
+    `<tr><td colspan="8"><div class="empty"><span class="ic">📦</span>Nenhum despacho hoje.</div></td></tr>`;
+});
+
+window.cadastrarVeiculo = async () => {
+  const placa = document.getElementById("f-placa").value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const [modal,capStr] = document.getElementById("f-modal").value.split("|");
+  const motorista = document.getElementById("f-motorista").value.trim();
+  const msgEl = document.getElementById("f-msg");
+  if(placa.length<7){ showMsg(msgEl,"err","Placa deve ter 7 caracteres."); return; }
+  if(veiculosDisp.find(v=>v.placa===placa)||pedidosHoje.find(p=>p.placa===placa)){
+    showMsg(msgEl,"err","Essa placa já está cadastrada hoje!"); return;
+  }
+  try{
+    await addDoc(collection(db,"veiculos_disponiveis"),{
+      placa,modal,motorista:motorista||"Não informado",cap:parseInt(capStr),
+      status:"disponivel",data:hoje(),criadoEm:serverTimestamp()
+    });
+    showMsg(msgEl,"ok",`✅ Veículo ${placa} cadastrado!`);
+    document.getElementById("f-placa").value="";
+    document.getElementById("f-motorista").value="";
+  }catch(e){ showMsg(msgEl,"err","Erro ao cadastrar. Verifique o Firestore."); }
+};
+
+window.removerVeiculo = async (id,placa) => {
+  if(!confirm(`Remover veículo ${placa}?`)) return;
+  await deleteDoc(doc(db,"veiculos_disponiveis",id));
+};
+
+window.despachar = async () => {
+  const selVal = document.getElementById("d-veiculo").value;
+  const destino = document.getElementById("d-destino").value;
+  const obs     = document.getElementById("d-obs").value.trim();
+  const pedido  = document.getElementById("d-pedido").value.trim().toUpperCase();
+  const tonStr  = document.getElementById("d-ton-input").value;
+  const sacosStr= document.getElementById("d-sacos-input").value;
+  const msgEl   = document.getElementById("d-msg");
+  if(!selVal){ showMsg(msgEl,"err","Selecione um veículo."); return; }
+  if(!pedido){ showMsg(msgEl,"err","Informe o número do pedido."); return; }
+  if(!tonStr||parseFloat(tonStr)<=0){ showMsg(msgEl,"err","Informe a quantidade em toneladas."); return; }
+  const [veiculoId,capStr] = selVal.split("|");
+  const ton = parseFloat(tonStr);
+  const sacos = parseInt(sacosStr)||Math.round(ton*20);
+  if(ton>parseInt(capStr)){ showMsg(msgEl,"err",`Carga (${ton}t) excede capacidade (${capStr}t).`); return; }
+  const veiculo = veiculosDisp.find(v=>v.id===veiculoId);
+  if(!veiculo){ showMsg(msgEl,"err","Veículo não encontrado."); return; }
+  document.getElementById("d-btn").disabled=true;
+  try{
+    await addDoc(collection(db,"pedidos_despacho"),{
+      veiculoId,placa:veiculo.placa,modal:veiculo.modal,motorista:veiculo.motorista,
+      destino,obs,pedido,toneladas:ton,sacos,data:hoje(),criadoEm:serverTimestamp(),status:"despachado"
+    });
+    await updateDoc(doc(db,"veiculos_disponiveis",veiculoId),{status:"alocado"});
+    showMsg(msgEl,"ok",`🚀 Pedido ${pedido} despachado para ${destino}!`);
+    ["d-veiculo","d-pedido","d-ton-input","d-sacos-input","d-obs"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("d-ton-info").textContent="";
+    document.getElementById("d-vcap").textContent="";
+  }catch(e){ showMsg(msgEl,"err","Erro ao despachar."); }
+  document.getElementById("d-btn").disabled=false;
+};
+
+window.cancelarPedido = async (pedidoId,veiculoId,num) => {
+  if(!confirm(`Cancelar pedido ${num}?`)) return;
+  await deleteDoc(doc(db,"pedidos_despacho",pedidoId));
+  try{ await updateDoc(doc(db,"veiculos_disponiveis",veiculoId),{status:"disponivel"}); }catch(e){}
+};
+
+window.onVeiculoChange = () => {
+  const selVal = document.getElementById("d-veiculo").value;
+  const capEl  = document.getElementById("d-vcap");
+  if(!selVal){ capEl.textContent=""; return; }
+  const [,capStr] = selVal.split("|");
+  capEl.textContent=`✅ Capacidade máxima: ${capStr}t`;
+};
+
+window.calcSacos = () => {
+  const t = parseFloat(document.getElementById("d-ton-input").value);
+  if(!isNaN(t)&&t>0){
+    const s=Math.round(t*20);
+    document.getElementById("d-sacos-input").value=s;
+    document.getElementById("d-ton-info").textContent=`${t}t = ${s} sacos de 50kg`;
+  }else{
+    document.getElementById("d-sacos-input").value="";
+    document.getElementById("d-ton-info").textContent="";
+  }
+};
+
+window.calcTon = () => {
+  const s=parseInt(document.getElementById("d-sacos-input").value);
+  if(!isNaN(s)&&s>0){
+    const t=(s/20).toFixed(2);
+    document.getElementById("d-ton-input").value=t;
+    document.getElementById("d-ton-info").textContent=`${s} sacos = ${t}t`;
+  }
+};
+
+function showMsg(el,type,txt){
+  el.innerHTML=`<div class="alert alert-${type==='ok'?'ok':'err'}">${txt}</div>`;
+  if(type==='ok') setTimeout(()=>el.innerHTML="",5000);
+}
+</script>
+
+<script>
+function showPage(name,btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  btn.classList.add("active");
+}
+</script>
+</body>
+</html>
